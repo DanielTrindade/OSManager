@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using OSManager.Data;
 using OSManager.Models;
 
@@ -8,11 +9,19 @@ namespace OSManager.Services
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<ImageService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ImageService(AppDbContext context, IWebHostEnvironment environment)
+        public ImageService(
+        AppDbContext context,
+        IWebHostEnvironment environment,
+        ILogger<ImageService> logger,
+        IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _environment = environment;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Image?> SaveImageAsync(IFormFile file, int orderId, int? checklistItemId = null)
@@ -74,12 +83,34 @@ namespace OSManager.Services
             return image;
         }
 
-        public async Task<bool> DeleteImageAsync(int id, int userId)
+        public async Task<bool> DeleteImageAsync(int id)
         {
-            // Verificar se a imagem existe e pertence a uma ordem do usuário
-            var image = await _context.Images
-                .Include(i => i.Order)
-                .FirstOrDefaultAsync(i => i.Id == id && i.Order != null && i.Order.UserId == userId);
+            // Obter o usuário atual do HttpContext
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user == null)
+                return false;
+
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var isAdminOrSupervisor = user.IsInRole("Admin") || user.IsInRole("Supervisor");
+
+            // Consulta base
+            var query = _context.Images.Include(i => i.Order);
+
+            // Buscar a imagem - com verificação de autorização já incorporada
+            Image? image;
+            if (isAdminOrSupervisor)
+            {
+                // Admins/Supervisores podem deletar qualquer imagem
+                image = await query.FirstOrDefaultAsync(i => i.Id == id);
+            }
+            else
+            {
+                // Usuários comuns só podem deletar suas próprias imagens
+                image = await query.FirstOrDefaultAsync(i => i.Id == id &&
+                                                           i.Order != null &&
+                                                           i.Order.UserId == userId);
+            }
 
             if (image == null)
                 return false;
@@ -87,7 +118,14 @@ namespace OSManager.Services
             // Apagar arquivo físico
             if (File.Exists(image.FilePath))
             {
-                File.Delete(image.FilePath);
+                try
+                {
+                    File.Delete(image.FilePath);
+                }
+                catch (IOException ex)
+                {
+                    _logger.LogWarning(ex, $"Não foi possível excluir o arquivo físico: {image.FilePath}");
+                }
             }
 
             // Remover registro do banco

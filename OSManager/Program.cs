@@ -120,6 +120,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 // Registrar serviços
 builder.Services.AddScoped<AuthService>();
@@ -804,25 +805,11 @@ app.MapPost("/api/orders/{orderId}/images", async (int orderId, IFormFile file, 
 .WithOpenApi()
 .DisableAntiforgery();
 
-app.MapDelete("/api/images/{id}", async (int id, ClaimsPrincipal user, ImageService imageService) =>
+app.MapDelete("/api/images/{id}", async (int id, ImageService imageService) =>
 {
-    var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var result = await imageService.DeleteImageAsync(id);
 
-    // Admins e supervisores podem excluir qualquer imagem
-    if (user.IsInRole("Admin") || user.IsInRole("Supervisor"))
-    {
-        var result = await imageService.DeleteImageAsync(id, 0);
-
-        if (!result)
-            return Results.NotFound();
-
-        return Results.NoContent();
-    }
-
-    // Outros usuários só podem excluir suas próprias imagens
-    var deleteResult = await imageService.DeleteImageAsync(id, userId);
-
-    if (!deleteResult)
+    if (!result)
         return Results.NotFound();
 
     return Results.NoContent();

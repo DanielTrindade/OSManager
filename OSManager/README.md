@@ -29,7 +29,7 @@ Uma API simples para gerenciamento de Ordens de Serviço utilizando .NET 8 com M
 
 1. Clone o repositório:
    ```
-   git clone https://github.com/seu-usuario/os-manager.git
+   git clone https://github.com/DanielTrindade/OSManager.git
    cd os-manager
    ```
 
@@ -51,7 +51,7 @@ Uma API simples para gerenciamento de Ordens de Serviço utilizando .NET 8 com M
 
 1. Clone o repositório:
    ```
-   git clone https://github.com/seu-usuario/os-manager.git
+   git clone https://github.com/DanielTrindade/OSManager.git
    cd os-manager
    ```
 
