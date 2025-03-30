@@ -1,0 +1,33 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: osmanager-db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "UmaSenhaMuitoForte!"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - osmanager-network
+  osmanager:
+    image: ${DOCKER_REGISTRY-}osmanager
+    build:
+      context: OSManager
+      dockerfile: Dockerfile
+    depends_on:
+      - sqlserver
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=OSManagerDb;User Id=sa;Password=UmaSenhaMuitoForte!;TrustServerCertificate=True;
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    networks:
+      - osmanager-network
+networks:
+  osmanager-network:
+    driver: bridge
+volumes:
+  sqlserver-data:
