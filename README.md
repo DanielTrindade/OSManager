@@ -1,85 +1,37 @@
 # OSManager - Sistema de Gestão de Ordens de Serviço
 
-Uma API robusta para gerenciamento completo de Ordens de Serviço (OS), desenvolvida com .NET 8 utilizando Minimal APIs e seguindo as melhores práticas de desenvolvimento.
+## Visão Geral
+
+O OSManager é um sistema completo para gerenciamento de ordens de serviço, desenvolvido para facilitar o controle de atividades de campo, inspeções e manutenções. O sistema permite que técnicos registrem suas atividades, preencham checklists e enviem evidências fotográficas, com fluxo de aprovação por supervisores.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## 📋 Índice
+## Arquitetura da Solução
 
-- [Visão Geral](#visão-geral)
-- [Funcionalidades](#funcionalidades)
-- [Arquitetura](#arquitetura)
-- [Modelo de Dados](#modelo-de-dados)
-- [Tecnologias Utilizadas](#tecnologias-utilizadas)
-- [Requisitos](#requisitos)
-- [Instalação e Execução](#instalação-e-execução)
-  - [Usando Docker (Recomendado)](#usando-docker-recomendado)
-  - [Usando .NET CLI](#usando-net-cli)
-- [Documentação da API](#documentação-da-api)
-- [Fluxo de Trabalho](#fluxo-de-trabalho)
-- [Usuários Padrão](#usuários-padrão)
-- [Contribuição](#contribuição)
-- [Licença](#licença)
+O sistema segue uma arquitetura de duas camadas principais, com uma clara separação entre frontend e backend:
 
-## 📝 Visão Geral
+### Backend (API)
 
-OSManager é um sistema completo para gerenciamento de ordens de serviço que permite que técnicos de campo registrem suas atividades, preencham checklists e enviem evidências fotográficas do trabalho realizado. O sistema inclui níveis de aprovação, garantindo qualidade e conformidade em todo o processo de serviço.
+- Desenvolvido em **.NET 8** utilizando **Minimal APIs**
+- Banco de dados **SQL Server**
+- Autenticação baseada em **JWT**
+- Padrões **REST** para comunicação
 
-## ✨ Funcionalidades
+### Frontend
 
-- **Autenticação e Autorização**
-  - Sistema de login seguro com tokens JWT
-  - Níveis de acesso: Administrador, Supervisor e Técnico
-  - Gestão de senhas com hash seguro
+- Desenvolvido com **Vue.js 3** e **Vite**
+- Interface responsiva com **Tailwind CSS**
+- Comunicação com o backend via **Axios**
 
-- **Gestão de Ordens de Serviço**
-  - Criação, visualização, filtragem e monitoramento de OS
-  - Fluxo de trabalho completo: Criação → Em Progresso → Concluído → Aprovado/Rejeitado
-  - Estatísticas e relatórios de ordens de serviço
+### Containerização
 
-- **Sistema de Checklist**
-  - Templates de checklist configuráveis e categorizados
-  - Itens de checklist obrigatórios antes da conclusão da OS
-  - Organização por categorias personalizáveis
+- **Docker** para criação de ambientes isolados
+- **Docker Compose** para orquestração dos serviços
 
-- **Documentação Fotográfica**
-  - Upload de imagens como evidência do serviço realizado
-  - Associação de imagens a itens específicos do checklist
-  - Validação de formato e tamanho de arquivos
+## Modelo de Dados
 
-- **Monitoramento e Logs**
-  - Registro detalhado de requisições HTTP
-  - Métricas de desempenho para cada solicitação
-
-## 🏗️ Arquitetura
-
-O projeto segue uma arquitetura em camadas limpa e moderna:
-
-```
-OSManager/
-├── Data/            # Acesso a dados e configurações do EF Core
-├── DTOs/            # Objetos de transferência de dados
-├── Extensions/      # Métodos de extensão para mapeamento e utilidades
-├── Middleware/      # Middlewares personalizados
-├── Models/          # Entidades de domínio
-├── Services/        # Lógica de negócios 
-├── Utils/           # Classes utilitárias
-└── Program.cs       # Configuração da aplicação e definição de endpoints
-```
-
-### Princípios SOLID Aplicados
-
-- **S (Single Responsibility)**: Cada classe tem uma única responsabilidade bem definida
-- **O (Open/Closed)**: Entidades são abertas para extensão, fechadas para modificação
-- **L (Liskov Substitution)**: Subtipos podem ser substituídos por seus tipos base
-- **I (Interface Segregation)**: Interfaces específicas para clientes específicos
-- **D (Dependency Inversion)**: Dependência de abstrações, não de implementações concretas
-
-## 📊 Modelo de Dados
-
-O sistema utiliza as seguintes entidades principais:
+O sistema é composto pelas seguintes entidades principais:
 
 ### User
 - Representa usuários do sistema com diferentes papéis (Admin, Supervisor, Technician)
@@ -129,108 +81,7 @@ O sistema utiliza as seguintes entidades principais:
                   └─────────┘
 ```
 
-## 🛠️ Tecnologias Utilizadas
-
-- **.NET 8**: Framework moderno para desenvolvimento de aplicações
-- **Entity Framework Core**: ORM para acesso a dados com abordagem Code First
-- **SQL Server**: Sistema de gerenciamento de banco de dados relacional
-- **JWT Authentication**: Autenticação baseada em tokens
-- **BCrypt**: Algoritmo seguro para hash de senhas
-- **Docker**: Contêinerização para implantação simplificada
-- **Swagger/OpenAPI**: Documentação automatizada da API
-
-## 📋 Requisitos
-
-- .NET 8 SDK
-- Docker e Docker Compose (para execução em contêineres)
-- SQL Server (necessário apenas para execução sem Docker)
-- Visual Studio 2022, VS Code ou outro editor compatível
-
-## 🚀 Instalação e Execução
-
-### Usando Docker (Recomendado)
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/DanielTrindade/OSManager.git
-   cd OSManager
-   ```
-
-2. Execute com Docker Compose:
-   ```bash
-   docker-compose up -d
-   ```
-
-3. Acesse a API em:
-   - Documentação Swagger: http://localhost:50780/swagger
-   - API: http://localhost:50780/api
-
-### Usando .NET CLI
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/DanielTrindade/OSManager.git
-   cd os-manager
-   ```
-
-2. Configure a connection string no arquivo `appsettings.json` para apontar para seu servidor SQL:
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=OSManagerDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true"
-     }
-   }
-   ```
-
-3. Restaure os pacotes e execute as migrações:
-   ```bash
-   dotnet restore
-   dotnet ef database update
-   ```
-
-4. Execute a aplicação:
-   ```bash
-   dotnet run
-   ```
-
-5. Acesse:
-   - Documentação Swagger: https://localhost:50780/swagger
-   - API: https://localhost:50780'''''''''''/api
-
-## 📚 Documentação da API
-
-A documentação completa da API está disponível através do Swagger UI após a execução do projeto. Principais endpoints:
-
-### Autenticação
-- **POST /api/auth/login**: Autenticação de usuário e obtenção de token JWT
-
-### Usuários
-- **GET /api/users**: Listar todos os usuários (Admin)
-- **GET /api/users/{id}**: Obter usuário por ID (Admin)
-- **POST /api/users**: Criar novo usuário (Admin)
-- **PUT /api/users/{id}**: Atualizar usuário (Admin)
-- **POST /api/users/change-password**: Alterar senha
-
-### Ordens de Serviço
-- **GET /api/orders**: Listar ordens de serviço
-- **GET /api/orders/{id}**: Obter ordem por ID
-- **POST /api/orders**: Criar nova ordem
-- **PUT /api/orders/status**: Atualizar status de uma ordem
-- **GET /api/orders/filter**: Filtrar ordens por status/data
-- **GET /api/orders/stats**: Obter estatísticas de ordens
-
-### Checklist
-- **PUT /api/checklist/items**: Atualizar item de checklist
-- **GET /api/checklist/templates**: Obter templates de checklist
-- **POST /api/checklist/templates**: Criar template de checklist
-- **PUT /api/checklist/templates/{id}**: Atualizar template
-- **DELETE /api/checklist/templates/{id}**: Remover template
-
-### Imagens
-- **POST /api/orders/{orderId}/images**: Enviar imagem para uma OS
-- **DELETE /api/images/{id}**: Remover imagem
-
-## 🔄 Fluxo de Trabalho
+## Fluxo de Trabalho
 
 O sistema implementa o seguinte fluxo de trabalho para ordens de serviço:
 
@@ -258,7 +109,88 @@ O sistema implementa o seguinte fluxo de trabalho para ordens de serviço:
    - Em caso de rejeição, um motivo deve ser fornecido
    - A data de aprovação é registrada
 
-## 👥 Usuários Padrão
+## Controle de Acesso e Permissões
+
+O sistema implementa três níveis de acesso:
+
+| Perfil     | Descrição                                   | Permissões                                           |
+|------------|---------------------------------------------|------------------------------------------------------|
+| Admin      | Administrador com acesso total ao sistema   | Acesso completo a todas as funcionalidades           |
+| Supervisor | Responsável pela aprovação de OS            | Pode visualizar todas as OS e aprovar/rejeitar       |
+| Technician | Executa os trabalhos de campo               | Cria e gerencia suas próprias OS                     |
+
+## Características do Sistema
+
+### Backend (API)
+
+- **Segurança**: Autenticação JWT, senhas com hash seguro (BCrypt)
+- **Logs e Monitoramento**: Registro detalhado de requisições HTTP
+- **Validação**: Verificação robusta de entrada de dados
+- **Escalabilidade**: Arquitetura em camadas para fácil manutenção e expansão
+
+### Frontend
+
+- **Interface Responsiva**: Adaptável a dispositivos móveis e desktop
+- **Experiência de Usuário**: Feedback visual claro, validações em tempo real
+- **Dashboard**: Visualização rápida de estatísticas e métricas
+- **Organização**: Checklists categorizados para melhor visualização
+
+## Estrutura do Projeto
+
+```
+OSManager/
+├── OSManager/             # Projeto Backend (.NET)
+│   ├── Data/              # Acesso a dados e configurações
+│   ├── DTOs/              # Objetos de transferência de dados
+│   ├── Models/            # Entidades de domínio
+│   ├── Services/          # Lógica de negócios
+│   ├── Middleware/        # Middlewares personalizados
+│   └── Program.cs         # Configuração da aplicação
+│
+├── osmanager-frontend/    # Projeto Frontend (Vue.js)
+│   ├── src/               # Código fonte
+│   │   ├── components/    # Componentes Vue
+│   │   ├── views/         # Páginas da aplicação
+│   │   ├── services/      # Serviços para API
+│   │   └── router/        # Configuração de rotas
+│   └── public/            # Recursos estáticos
+│
+└── docker-compose.yml     # Configuração de contêineres
+```
+
+## Configuração e Execução
+
+### Requisitos
+
+- Docker e Docker Compose
+- Ou instalação local de:
+  - .NET 8 SDK
+  - Node.js 16+
+  - SQL Server
+
+### Instalação com Docker
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/OSManager.git
+cd OSManager
+```
+
+2. Execute o Docker Compose:
+```bash
+docker-compose up -d
+```
+
+3. Acesse a aplicação:
+   - Frontend: http://localhost:8080
+   - API: http://localhost:5000/api
+   - Swagger: http://localhost:5000/swagger
+
+### Instalação Local
+
+Consulte os READMEs específicos do [backend](./OSManager/README.md) e [frontend](./osmanager-frontend/README.md) para instruções detalhadas.
+
+## Usuários Padrão
 
 O sistema é inicializado com os seguintes usuários:
 
@@ -267,6 +199,26 @@ O sistema é inicializado com os seguintes usuários:
 | admin       | admin123      | Admin      | Acesso total ao sistema              |
 | supervisor  | supervisor123 | Supervisor | Pode aprovar/rejeitar OS             |
 | tecnico     | tecnico123    | Technician | Cria e executa ordens de serviço     |
+
+## Princípios de Design
+
+O projeto foi desenvolvido seguindo os princípios SOLID:
+
+- **S (Single Responsibility)**: Cada classe tem uma única responsabilidade
+- **O (Open/Closed)**: Entidades abertas para extensão, fechadas para modificação
+- **L (Liskov Substitution)**: Subtipos podem ser substituídos por seus tipos base
+- **I (Interface Segregation)**: Interfaces específicas para clientes específicos
+- **D (Dependency Inversion)**: Dependência de abstrações, não de implementações
+
+## Evolução e Expansão
+
+O sistema foi projetado pensando em escalabilidade e pode ser expandido com:
+
+- **Sistema de Notificações**: Alertas e notificações em tempo real
+- **Integração com Calendário**: Agendamento de ordens de serviço
+- **Aplicativo Mobile**: Versão nativa para dispositivos móveis
+- **Relatórios Avançados**: Exportação e análise de dados
+- **Controle de Estoque**: Integração para gerenciamento de peças e materiais
 
 ---
 
