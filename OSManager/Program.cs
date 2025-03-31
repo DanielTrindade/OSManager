@@ -84,7 +84,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ??
-                ["http://localhost:8080", "https://localhost:8081"]
+                ["http://localhost:8080", "https://localhost:8081", "http://frontend:8080"]
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
